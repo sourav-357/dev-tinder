@@ -85,7 +85,7 @@ profileRouter.put("/updatePassword", userAuth, async (req, res, next) => {
         }
         const hashedPassword = await bcrypt.hash(newPassword, 10);
         user.password = hashedPassword;
-        await user.updateOne({ _id: user._id }, { password: user.password }, { runValidators: true });
+        await user.updateOne({ _id: user._id }, { password: user.password }, { runValidators: true } /* to check everyspects defined in schema */);
         res.status(200);
         res.json({ message: "Password updated successfully" });
         console.log(`Password for user ${user.firstName} ${user.lastName} updated successfully...`);
