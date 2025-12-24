@@ -1,125 +1,126 @@
-// Importing required modules
+// importing React hooks for creating context and managing state
 import React, { createContext, useContext, useState, useEffect } from "react";
+// importing API functions to check if user is logged in and to logout
 import { getProfile, logout as logoutAPI } from "../utils/api";
 
-// Creating AuthContext to manage authentication state globally
+// creating AuthContext - this allows us to share user data across all components
+// context is like a global state that any component can access
 const AuthContext = createContext();
 
-/**
- * Custom hook to access authentication context
- * @returns {Object} Auth context value containing user, loading, login, logout functions
- */
+// custom hook to access authentication context
+// we use this in components to get user data and auth functions
 export const useAuth = () => {
+  // getting context value
   const context = useContext(AuthContext);
+  // if context is not found, it means component is not wrapped in AuthProvider
   if (!context) {
     throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };
 
-/**
- * AuthProvider component that wraps the app and provides authentication state
- * @param {Object} props - Component props
- * @param {ReactNode} props.children - Child components
- */
+// AuthProvider component - wraps the entire app to provide authentication state
+// children prop is all the components inside AuthProvider
 export const AuthProvider = ({ children }) => {
-  // State to store the current user data
+  // state to store current user data
+  // null means user is not logged in, user object means user is logged in
   const [user, setUser] = useState(null);
   
-  // State to track if authentication check is in progress
+  // state to track if we're still checking if user is logged in
+  // true means we're checking, false means we're done checking
   const [loading, setLoading] = useState(true);
 
-  /**
-   * Function to check if user is authenticated by fetching profile
-   * Called on component mount and when user logs in
-   * Silently handles 401 errors (expected when user is not logged in)
-   */
+  // function to check if user is authenticated
+  // calls backend to get user profile - if successful, user is logged in
   const checkAuth = async () => {
     try {
+      // calling backend API to get user profile
       const response = await getProfile();
+      // if response has user data, user is logged in
       if (response.user) {
         setUser(response.user);
       } else {
         setUser(null);
       }
     } catch (error) {
-      // Silently handle authentication errors (401, 404, network errors)
-      // These are expected when user is not logged in
-      // We don't log these errors to avoid console spam
+      // if error occurs, user is probably not logged in
+      // we don't log 401 errors because they're expected when not logged in
       if (error.response) {
-        // Server responded with error status (401, 404, etc.)
+        // server responded with error status (401, 404, etc.)
         if (error.response.status === 401 || error.response.status === 404) {
-          // User is not authenticated - this is normal, don't log
+          // user is not authenticated - this is normal, don't log
           setUser(null);
         } else {
-          // Other server errors - only log unexpected errors
+          // other server errors - log unexpected errors
           console.error("Unexpected auth error:", error.response.status);
           setUser(null);
         }
       } else {
-        // Network error or CORS error - only log if it's not a connection refused
-        // Connection refused means server isn't running, which is fine during development
+        // network error or CORS error
+        // connection refused means server isn't running (fine during development)
         if (error.code !== 'ERR_NETWORK' && error.code !== 'ECONNREFUSED') {
           console.error("Network error checking auth:", error.message);
         }
         setUser(null);
       }
     } finally {
+      // always set loading to false when done checking
       setLoading(false);
     }
   };
 
-  /**
-   * Function to set user data after successful login
-   * @param {Object} userData - User data from login response
-   */
+  // function to set user data after successful login
+  // called when user logs in successfully
   const login = (userData) => {
+    // setting user state with logged in user's data
     setUser(userData);
-    // Set flag to indicate user has logged in
+    // saving flag to localStorage so we know user has logged in before
+    // this helps us decide whether to check auth on page load
     localStorage.setItem('hasLoggedIn', 'true');
   };
 
-  /**
-   * Function to log out the user
-   * Clears user state and calls logout API
-   */
+  // function to log out the user
+  // clears user data and calls backend to clear authentication cookie
   const logout = async () => {
     try {
+      // calling backend API to logout (clears cookie)
       await logoutAPI();
     } catch (error) {
+      // if logout API fails, still clear user data locally
       console.error("Logout error:", error);
     } finally {
+      // always clear user data and localStorage flag
       setUser(null);
-      // Clear the login flag
       localStorage.removeItem('hasLoggedIn');
     }
   };
 
-  // Check authentication status when component mounts
-  // Only check if we have a flag indicating a previous login attempt
+  // useEffect runs when component first mounts (page loads)
+  // checks if user is logged in by calling checkAuth
   useEffect(() => {
-    // Check if there's a flag indicating user might be logged in
-    // This prevents unnecessary API calls when user hasn't logged in yet
+    // checking if user has logged in before (from localStorage)
+    // this prevents unnecessary API calls if user never logged in
     const hasLoggedInBefore = localStorage.getItem('hasLoggedIn');
     
     if (hasLoggedInBefore === 'true') {
-      // User has logged in before, check if session is still valid
+      // user has logged in before, check if session is still valid
       checkAuth();
     } else {
-      // User hasn't logged in, skip auth check
+      // user hasn't logged in, skip auth check (set loading to false)
       setLoading(false);
     }
-  }, []);
+  }, []); // empty array means this only runs once when component mounts
 
-  // Context value containing user state and auth functions
+  // value object contains everything we want to share with other components
   const value = {
-    user,
-    loading,
-    login,
-    logout,
-    checkAuth,
+    user,        // current user data (null if not logged in)
+    loading,     // whether we're still checking auth status
+    login,       // function to set user after login
+    logout,      // function to log out user
+    checkAuth,   // function to check if user is logged in
   };
 
+  // AuthContext.Provider makes the value available to all child components
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 

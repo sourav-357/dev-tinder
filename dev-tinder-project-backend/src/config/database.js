@@ -1,15 +1,21 @@
 
-// Importing the required modules
+// importing mongoose module for connecting to MongoDB database
 const mongoose = require('mongoose');
 
-// connecting to DB in a async await function
+// function to connect to MongoDB database
+// using async/await because database connection takes time
 const connectDB = async () => {
-    await mongoose.connect(
-        "mongodb+srv://souravdev:sourav1976@namstenodejs.4v6bcyl.mongodb.net/devTinder"
-    );
+    // getting MongoDB connection string from environment variable
+    const mongoURI = process.env.MONGODB_URI;
+    
+    // connecting to MongoDB using the connection string
+    // mongoose.connect() returns a promise, so we await it
+    await mongoose.connect(mongoURI);
+    
+    console.log("Connected to MongoDB database...");
 };
 
-// exporting module
+// exporting the function so we can use it in other files
 module.exports = {
     connectDB,
 }
