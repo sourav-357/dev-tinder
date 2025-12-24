@@ -1,25 +1,29 @@
-// Importing required modules
+// importing React
 import React from "react";
+// importing NavBar component for navigation
 import NavBar from "./NavBar";
+// importing Outlet from react-router-dom - this renders child routes
 import { Outlet } from "react-router-dom";
+// importing Footer component
 import Footer from "./Footer";
 
-/**
- * Body component - Layout wrapper for all pages
- * Contains NavBar, Outlet (for child routes), and Footer
- */
+// Body component - this is the layout wrapper for all pages
+// it contains NavBar at top, Outlet in middle (where page content goes), Footer at bottom
 const Body = () => {
   return (
+    // flex flex-col makes it a vertical flexbox (stacked vertically)
+    // min-h-screen makes it at least full screen height
     <div className="flex flex-col min-h-screen">
-      {/* Navigation Bar */}
+      {/* navigation bar at the top */}
       <NavBar />
       
-      {/* Main Content Area - Renders child routes */}
+      {/* main content area - Outlet renders whatever child route is active */}
+      {/* flex-1 makes it take up remaining space between NavBar and Footer */}
       <main className="flex-1">
         <Outlet />
       </main>
       
-      {/* Footer */}
+      {/* footer at the bottom */}
       <Footer />
     </div>
   );

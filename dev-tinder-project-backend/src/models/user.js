@@ -1,8 +1,11 @@
 
+// importing mongoose module for creating database schemas
 const mongoose = require("mongoose");
+// importing validator module for validating email, password, URLs, etc.
 const validator =  require("validator");
 
-// we first create a user Schema that what would be inside the user part 
+// creating user schema - this defines what fields a user document will have
+// schema is like a blueprint for user data in MongoDB
 const userSchema = new mongoose.Schema({
     firstName: {
         type: String,
@@ -60,8 +63,8 @@ const userSchema = new mongoose.Schema({
         default: "This is the random defalt about section.",
     },
     skills: {
-        type: [String],
-        // check if the skills array contains more than 1 skill and less than 5 skills
+        type: [String], // array of strings
+        // custom validation - check if skills array has 1 to 5 skills
         validate(value) {
             if (value.length < 1 || value.length > 5) {
                 throw new Error("Skills must be an array with 1 to 5 skills.");
@@ -70,16 +73,17 @@ const userSchema = new mongoose.Schema({
     },
 },
 {
-    timestamps: true, // record createdAt time and updatedAt time fields
+    // timestamps: true automatically adds createdAt and updatedAt fields
+    timestamps: true,
 });
 
-// create index for firstName and lastName combination to be unique
+// creating index for firstName and lastName combination to be unique
 userSchema.index({ firstName: 1, lastName: 1 }, { unique: true });
 
-// creating user models 
+// creating the User model from the schema
 const User = mongoose.model("User", userSchema);
 
-// exporting the model 
+// exporting the model so we can use it in other files
 module.exports = {
     User,
 }

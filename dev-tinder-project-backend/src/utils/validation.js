@@ -1,7 +1,8 @@
 
+// importing validator module for validating email, password, URLs, etc.
 const validate = require("validator");
 
-// Function to validate signup data
+// function to validate signup data - checks if all fields are valid before creating user
 const validateSignupData = (req, res) => {
 
     // allowed fields check
@@ -69,12 +70,11 @@ const validateSignupData = (req, res) => {
             return false;
         }
     }
-    // If all validations pass
+    // if all validations pass, return true
     return true;
 }
 
-
-// validating the update profile data
+// function to validate profile update data - checks if fields being updated are allowed
 const validateUpdateProfileData = (updateData, res) => {
     const ALLOWED_UPDATES = [ "photoUrl", "about", "skills", "gender", "age", "firstName", "lastName" ];
     const isUpdateAllowed = Object.keys(updateData).every((update) =>
@@ -88,8 +88,7 @@ const validateUpdateProfileData = (updateData, res) => {
     return true;
 }
 
-
-// validating the strongness of password data
+// function to validate password strength - checks if password is strong enough
 const validatePassword = (password, res) => {
     if (!validate.isStrongPassword(password)) {
         res.status(400);

@@ -1,25 +1,25 @@
-// Importing required modules
+// importing React
 import React from "react";
+// importing Link and useNavigate from react-router-dom for navigation
 import { Link, useNavigate } from "react-router-dom";
+// importing useAuth hook to access user data and logout function
 import { useAuth } from "./context/AuthContext";
 
-/**
- * NavBar component for navigation
- * Shows different navigation items based on authentication status
- */
+// NavBar component - shows navigation links at the top of every page
+// shows different links based on whether user is logged in or not
 const NavBar = () => {
-  // Navigation hook for programmatic routing
+  // useNavigate hook allows us to programmatically navigate to different pages
   const navigate = useNavigate();
   
-  // Auth context to access user and logout function
+  // getting user data and logout function from AuthContext
+  // user will be null if not logged in, or user object if logged in
   const { user, logout } = useAuth();
 
-  /**
-   * Handle logout action
-   * Logs out user and redirects to home page
-   */
+  // function to handle logout when user clicks logout button
   const handleLogout = async () => {
+    // calling logout function from context (this clears user data and calls backend)
     await logout();
+    // redirecting to home page after logout
     navigate("/");
   };
 
