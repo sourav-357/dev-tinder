@@ -58,7 +58,7 @@ export default function Feed() {
    * @param {string} userId - ID of the user to send request to
    */
   const handleInterested = async (userId) => {
-    setActionLoading(userId);
+    setActionLoading({ userId, type: "interested" });
     try {
       await sendConnectionRequest(userId, "interested");
       // Remove user from feed after sending request
@@ -78,7 +78,7 @@ export default function Feed() {
    * @param {string} userId - ID of the user to ignore
    */
   const handleIgnore = async (userId) => {
-    setActionLoading(userId);
+    setActionLoading({ userId, type: "ignored" });
     try {
       await sendConnectionRequest(userId, "ignored");
       // Remove user from feed after ignoring
@@ -161,7 +161,14 @@ export default function Feed() {
                 user={user}
                 onInterested={() => handleInterested(user._id)}
                 onIgnore={() => handleIgnore(user._id)}
-                loading={actionLoading === user._id}
+                interestedLoading={
+                  actionLoading?.userId === user._id &&
+                  actionLoading?.type === "interested"
+                }
+                ignoreLoading={
+                  actionLoading?.userId === user._id &&
+                  actionLoading?.type === "ignored"
+                }
               />
             ))}
           </div>

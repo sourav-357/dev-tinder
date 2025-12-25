@@ -10,7 +10,13 @@ import React from "react";
  * @param {Function} props.onIgnore - Callback function when ignore button is clicked
  * @param {boolean} props.loading - Loading state for buttons
  */
-export default function UserCard({ user, onInterested, onIgnore, loading }) {
+export default function UserCard({
+  user,
+  onInterested,
+  onIgnore,
+  interestedLoading,
+  ignoreLoading,
+}) {
   return (
     <div className="card bg-base-200 shadow-xl">
       <div className="card-body">
@@ -67,9 +73,9 @@ export default function UserCard({ user, onInterested, onIgnore, loading }) {
           <button
             className="btn btn-error"
             onClick={onIgnore}
-            disabled={loading}
+            disabled={interestedLoading || ignoreLoading}
           >
-            {loading ? (
+            {ignoreLoading ? (
               <>
                 <span className="loading loading-spinner loading-sm"></span>
                 Processing...
@@ -81,9 +87,9 @@ export default function UserCard({ user, onInterested, onIgnore, loading }) {
           <button
             className="btn btn-primary"
             onClick={onInterested}
-            disabled={loading}
+            disabled={interestedLoading || ignoreLoading}
           >
-            {loading ? (
+            {interestedLoading ? (
               <>
                 <span className="loading loading-spinner loading-sm"></span>
                 Processing...
